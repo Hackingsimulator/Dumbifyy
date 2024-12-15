@@ -26,6 +26,11 @@ struct MainView: View {
             .background(Color.black)
             .listStyle(GroupedListStyle())
             .environment(\.colorScheme, .dark)
+            .alert("Duplicate Item", isPresented: $viewModel.showDuplicateAlert) {
+                        Button("OK", role: .cancel) { }
+                    } message: {
+                        Text("This item already exists in your to-do list.")
+                    }
         }
     private func handleURL(_ url: URL) {
         guard url.scheme == "todo" else {
@@ -85,16 +90,22 @@ private extension MainView {
                             Text(key)
                                 .foregroundColor(.gray)
                                 .onTapGesture {
-                                    viewModel.userInput = key
-                                    viewModel.didSubmitTextField()
+                                    // Check for duplicates
+                                    if !viewModel.doesTodoExist(title: key) {
+                                        viewModel.userInput = key
+                                        viewModel.didSubmitTextField()
+                                    } else {
+                                        viewModel.showDuplicateAlert = true
+                                    }
                                 }
                         }
-                        .padding(.vertical, 4)
                     }
                 }
+
             }
         }
     }
+
    var inProgressTodoListSection: some View {
        Section("Apps in the widget") {
            ForEach(viewModel.inProgressTodoList, id: \.self) { todo in
@@ -144,4 +155,7 @@ private extension MainView {
            }
        }
    }
+}
+#Preview(){
+    MainView()
 }

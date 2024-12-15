@@ -13,6 +13,7 @@ final class MainViewModel: ObservableObject {
     @Published var todoList: [TodoEntity] = []
     @Published var doneTodoList: [TodoEntity] = []
     @Published var inProgressTodoList: [TodoEntity] = []
+    @Published var showDuplicateAlert: Bool = false
 
     init() {
         getAllTodos()
@@ -28,6 +29,12 @@ final class MainViewModel: ObservableObject {
             }
         }
     }
+    func doesTodoExist(title: String) -> Bool {
+        return inProgressTodoList.contains {
+            $0.title?.localizedCaseInsensitiveCompare(title) == .orderedSame
+        }
+    }
+
 
     func didTapTodo(todo: TodoEntity) {
         Task {
@@ -64,7 +71,7 @@ private extension MainViewModel {
             }
         }
     }
-
+    
     func createTodo() async {
         CoreDataManager.shared.createTodo(title: userInput)
     }
